@@ -74,12 +74,14 @@
     <ClCompile Include="MySocket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySocketPair.cpp" />
+    <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="MyListenSocket.h" />
     <ClInclude Include="MySocket.h" />
     <ClInclude Include="MySocketPair.h" />
+    <ClInclude Include="timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

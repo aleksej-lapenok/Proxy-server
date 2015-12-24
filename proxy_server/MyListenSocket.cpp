@@ -7,7 +7,7 @@
 using namespace std;
 
 
-MyListenSocket::MyListenSocket(int port) :mySocket(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))
+MyListenSocket::MyListenSocket(int port,long timeout) :mySocket(socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))
 {
 	sockaddr_in inetAddr;
 	inetAddr.sin_family = AF_INET;
@@ -20,11 +20,12 @@ MyListenSocket::MyListenSocket(int port) :mySocket(socket(AF_INET,SOCK_STREAM,IP
 	WSAEventSelect(mySocket.Socket, mySocket.WSAEvent, FD_ACCEPT | FD_CLOSE);
 	if (listen(mySocket.Socket, 10))
 		throw ExceptionListen();
+	this->timeout = timeout;
 }
 
-MyListenSocket::MyListenSocket()
+MyListenSocket::MyListenSocket(long timeout)
 {
-	MyListenSocket(7777);
+	MyListenSocket(7777,timeout);
 }
 
 MySocketPair MyListenSocket::onAccept(MySocket& client1)
@@ -35,7 +36,7 @@ MySocketPair MyListenSocket::onAccept(MySocket& client1)
 	inetAddr.sin_port = htons(80);
 	MySocket client2(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
 	connect(client2.Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
-	MySocketPair back(client1, client2);
+	MySocketPair back(timeout,client1, client2);
 	return back;
 }
 void MyListenSocket::myAccept()
@@ -65,12 +66,13 @@ void MyListenSocket::listenClients()
 		MySocketPair client = clients.front();
 		clients.pop();
 		client.ReadAndWrite();
-		if (client.client.Socket != INVALID_SOCKET && client.server.Socket != INVALID_SOCKET)
+		if (client.client.Socket != INVALID_SOCKET && client.server.Socket != INVALID_SOCKET && !client.time.check())
 		{
 			clients.push(client);
 		}
 		else
 		{
+			client.Destroy();
 			cout << "Client closed" << endl;
 		}
 	}

@@ -4,6 +4,7 @@
 #include <winsock2.h>
 #include <list>
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include "Clients.h"
 #include "MyListenSocket.h"
@@ -21,7 +22,7 @@ int server()
 
 	WSAStartup(MAKEWORD(2, 2), &wsadata);
 
-	MyListenSocket server(27025);
+	MyListenSocket server(2725,60*1000);
 	cout << "Server started" << endl << endl;
 	while (flage)
 	{
@@ -34,6 +35,9 @@ int server()
 
 int main()
 {
+	std::ofstream cout;
+	cout.open("log.txt", std::ios_base::out);
+	cout.close();
 	thread thr(server);
 	int a;
 	cin >> a;

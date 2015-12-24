@@ -4,7 +4,8 @@
 
 struct MySocket
 {
-	static int const LEN = 4096;
+	static int const LEN = 1024;
+	bool events[9];
 	SOCKET Socket;
 	WSAEVENT WSAEvent;
 	char buffer[LEN];
@@ -13,6 +14,7 @@ struct MySocket
 	MySocket(SOCKET, long events);
 	MySocket(SOCKET, WSAEVENT);
 	MySocket(MySocket const&);
+	bool checkEvent();
 	void Destroy();
 	~MySocket();
 };

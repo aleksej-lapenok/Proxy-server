@@ -5,10 +5,13 @@
 
 struct MyListenSocket
 {
+private:
 	MySocket mySocket;
 	std::queue<MySocketPair> clients;
-	MyListenSocket();
-	MyListenSocket(int port);
+	int timeout;
+public:
+	MyListenSocket(long timeout);
+	MyListenSocket(int port,long timeout);
 	MySocketPair onAccept(MySocket&);
 	void myAccept();
 	void listenClients();
