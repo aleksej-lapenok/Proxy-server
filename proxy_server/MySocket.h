@@ -4,7 +4,8 @@
 
 struct MySocket
 {
-	static int const LEN = 1024;
+	static int const LEN = 4096*2;
+	int len_buffer = 0;
 	bool events[9];
 	SOCKET Socket;
 	WSAEVENT WSAEvent;

@@ -10,7 +10,6 @@ MySocket::MySocket()
 	{
 		events[i] = false;
 	}
-	events[FD_WRITE_BIT] = true;
 }
 
 MySocket::MySocket(SOCKET sock)
@@ -20,7 +19,6 @@ MySocket::MySocket(SOCKET sock)
 	{
 		events[i] = false;
 	}
-	events[FD_WRITE_BIT] = true;
 }
 
 MySocket::MySocket(SOCKET sock, long events)
@@ -32,7 +30,6 @@ MySocket::MySocket(SOCKET sock, long events)
 	{
 		this->events[i] = false;
 	}
-	this->events[FD_WRITE_BIT] = true;
 }
 
 MySocket::MySocket(SOCKET sock, WSAEVENT even)
@@ -43,7 +40,6 @@ MySocket::MySocket(SOCKET sock, WSAEVENT even)
 	{
 		events[i] = false;
 	}
-	events[FD_WRITE_BIT] = true;
 }
 
 MySocket::MySocket(MySocket const& other)
@@ -74,7 +70,7 @@ bool MySocket::checkEvent()
 	{
 		WSANETWORKEVENTS WSANetWork;
 		WSAEnumNetworkEvents(Socket, WSAEvent, &WSANetWork);
-		if ((WSANetWork.lNetworkEvents & FD_WRITE) && WSANetWork.iErrorCode[FD_WRITE_BIT] == 0)
+		if ((WSANetWork.lNetworkEvents & FD_WRITE) && WSANetWork.iErrorCode[FD_WRITE_BIT] == 0 && !events[FD_WRITE_BIT])
 		{
 			events[FD_WRITE_BIT] = true;
 			flage = true;

@@ -3,6 +3,7 @@
 
 #include <winsock2.h>
 #include <list>
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -35,6 +36,7 @@ int server()
 
 int main()
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	std::ofstream cout;
 	cout.open("log.txt", std::ios_base::out);
 	cout.close();

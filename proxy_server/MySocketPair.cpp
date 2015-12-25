@@ -40,24 +40,46 @@ void MySocketPair::ReadAndWrite()
 				canBeRead = true;
 			}
 			
-			if (server.events[FD_READ_BIT] && canBeRead /*&& client.events[FD_WRITE_BIT] */)
+			if (server.events[FD_READ_BIT] && canBeRead && client.events[FD_WRITE_BIT])
 			{
-				int lenRecv = recv(server.Socket, server.buffer, server.LEN, 0);
-				int lenSend = send(client.Socket, server.buffer, lenRecv, 0);
-				std::cout << "server to client: " << std::endl/* << std::string(server.buffer + 0, server.buffer + lenRecv) << std::endl << std::endl*/;
+				if (client.len_buffer == 0)
+				{
+					client.len_buffer = recv(server.Socket, client.buffer, server.LEN, 0);
+				}
+				int lenSend = send(client.Socket, client.buffer, client.len_buffer, 0);
+				std::cout << "server to client: " << std::endl /*<< std::string(client.buffer + 0, client.buffer + client.len_buffer) << std::endl << std::endl*/;
 				server.events[FD_READ_BIT] = false;
-				client.events[FD_WRITE_BIT] = false;
 				flage = false;
-				assert(lenRecv == lenSend);
+				if (WSAGetLastError() == 10035 || lenSend==-1)
+				{
+					client.events[FD_WRITE_BIT] = false;
+				}
+				else
+				{
+					assert(client.len_buffer == lenSend);
+					client.len_buffer = 0;
+				}
+
 			}
-			if (client.events[FD_READ_BIT] && canBeRead /*&& server.events[FD_WRITE_BIT]*/)
+			if (client.events[FD_READ_BIT] && canBeRead && server.events[FD_WRITE_BIT])
 			{
-				int lenRecv = recv(client.Socket, client.buffer, client.LEN, 0);
-				int lenSend = send(server.Socket, client.buffer, lenRecv, 0);
-				std::cout << "client to server: " << std::endl /*<< std::string(client.buffer + 0, client.buffer + lenRecv) << std::endl << std::endl*/;
+				if (server.len_buffer == 0)
+				{
+					server.len_buffer = recv(client.Socket, server.buffer, client.LEN, 0);
+				}
+				int lenSend = send(server.Socket, server.buffer, server.len_buffer, 0);
+				std::cout << "client to server: " << std::endl/* << std::string(server.buffer + 0, server.buffer + server.len_buffer) << std::endl << std::endl*/;
 				flage = false;
 				client.events[FD_READ_BIT] = false;
-				assert(lenRecv == lenSend);
+				if (WSAGetLastError() == 10035 || lenSend==-1)
+				{
+					server.events[FD_WRITE_BIT] = false;
+				}
+				else
+				{
+					assert(server.len_buffer == lenSend);
+					server.len_buffer = 0;
+				}
 			}
 			if (flage && (server.events[FD_CLOSE_BIT] || client.events[FD_CLOSE_BIT]))
 			{

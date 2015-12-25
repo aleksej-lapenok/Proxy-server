@@ -1,12 +1,2 @@
-﻿  MySocketPair.cpp
-  Создание кода...
-  Компиляция...
-  main.cpp
-  MyListenSocket.cpp
-  Clients.cpp
-  Создание кода...
-  Пропуск... (изменения не обнаружены)
-  MySocket.cpp
-  Clients.h
-Debug\Clients.obj : warning LNK4042: юс·хъЄ єърчрэ сюыхх юфэюую Ёрчр; ыш°эшх эх єўшЄ√тр■Єё
+﻿  main.cpp
   proxy_server.vcxproj -> C:\Users\Алексей\Desktop\proxy_server\Debug\proxy_server.exe
