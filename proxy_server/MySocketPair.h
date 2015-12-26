@@ -4,6 +4,7 @@
 
 struct MySocketPair
 {
+	// TODO: make members private
 
 	MySocket client;
 	MySocket server;

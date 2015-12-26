@@ -1,6 +1,7 @@
 #pragma once
 #include <exception>
 
+// TODO: s/Bild/Bind/
 struct ExceptionBild:std::exception
 {
 	ExceptionBild(int port);

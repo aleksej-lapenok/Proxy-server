@@ -60,6 +60,9 @@ void MyListenSocket::myAccept()
 }
 void MyListenSocket::listenClients()
 {
+	// TODO: get rid of busy looping
+	//       use WSAWaitForMultipleEvents to wait for all of them
+
 	int len = clients.size();
 	for (int i = 0; i < len; i++)
 	{

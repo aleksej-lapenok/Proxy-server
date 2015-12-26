@@ -44,6 +44,7 @@ MySocket::MySocket(SOCKET sock, WSAEVENT even)
 
 MySocket::MySocket(MySocket const& other)
 {
+	// TODO: ???
 	Socket = other.Socket;
 	WSAEvent = other.WSAEvent;
 	for (int i = 0; i < 9; i++)
@@ -96,5 +97,6 @@ bool MySocket::checkEvent()
 
 MySocket::~MySocket()
 {
+	//TODO: ???
 	//closesocket(Socket);
 }
