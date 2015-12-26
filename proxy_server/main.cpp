@@ -2,10 +2,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 
 
 #include <winsock2.h>
-#include <list>
-#include <vector>
 #include <iostream>
-#include <fstream>
 #include <thread>
 #include "Clients.h"
 #include "MyListenSocket.h"
@@ -28,7 +25,6 @@ int server()
 	while (flage)
 	{
 		server.myAccept();
-		server.listenClients();
 	}
 	cout << "Server stopped";
 	return 0;
@@ -37,9 +33,6 @@ int server()
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	std::ofstream cout;
-	cout.open("log.txt", std::ios_base::out);
-	cout.close();
 	thread thr(server);
 	int a;
 	cin >> a;

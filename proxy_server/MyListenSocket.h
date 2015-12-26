@@ -12,5 +12,4 @@ public:
 	MyListenSocket(int port,long timeout);
 	MySocketPair onAccept(MySocket&);
 	void myAccept();
-	void listenClients();
 };

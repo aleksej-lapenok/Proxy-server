@@ -67,41 +67,4 @@ void MyListenSocket::myAccept()
 			}
 		}
 	}
-	/*int index = WSAWaitForMultipleEvents(1, &mySocket.WSAEvent, true, 0, false);
-	while(index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
-	{
-		WSANETWORKEVENTS wsaNetwork;
-		WSAEnumNetworkEvents(mySocket.Socket, mySocket.WSAEvent, &wsaNetwork);
-		if ((wsaNetwork.lNetworkEvents & FD_ACCEPT) && (wsaNetwork.iErrorCode[FD_ACCEPT_BIT] == 0))
-		{
-			MySocket client(accept(mySocket.Socket, NULL, NULL));
-			client.WSAEvent = WSACreateEvent();
-			WSAEventSelect(client.Socket, client.WSAEvent, FD_READ|FD_WRITE|FD_CONNECT);
-			MySocketPair Client = onAccept(client);
-			clients.Add(Client);
-			cout << "Client accepted" << endl;
-		}
-		index = WSAWaitForMultipleEvents(1, &mySocket.WSAEvent, true, 0, false);
-	}*/
-}
-void MyListenSocket::listenClients()
-{
-
-	/*
-	int len = clients.size();
-	for (int i = 0; i < len; i++)
-	{
-		MySocketPair client = clients.front();
-		clients.pop();
-		client.ReadAndWrite();
-		if (client.client.Socket != INVALID_SOCKET && client.server.Socket != INVALID_SOCKET && !client.time.check())
-		{
-			clients.push(client);
-		}
-		else
-		{
-			client.Destroy();
-			cout << "Client closed" << endl;
-		}
-	}*/
 }

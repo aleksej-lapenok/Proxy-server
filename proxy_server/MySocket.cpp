@@ -87,5 +87,6 @@ bool MySocket::checkEvent()
 
 MySocket::~MySocket()
 {
+	//TODO: ???
 	//closesocket(Socket);
 }

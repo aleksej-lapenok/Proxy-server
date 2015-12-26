@@ -4,6 +4,8 @@
 
 struct MySocket
 {
+	// TODO: make members private
+
 	static int const LEN = 4096*2;
 	int len_buffer = 0;
 	bool events[9];
