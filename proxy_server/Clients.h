@@ -1,26 +1,19 @@
-#include "MySocket.h"
-#include <list>
-
-using namespace std;
+#pragma once
+#include "MySocketPair.h"
+#include <vector>
 
 struct Clients
 {
-	struct iterator
-	{
-		list<MySocket>::iterator its;
-		iterator(list<MySocket>::iterator);
-		MySocket& operator*() const;
-		MySocket& operator->() const;
-		iterator operator--();
-		iterator operator++();
-		iterator operator--(int);
-		iterator operator++(int);
-	};
-	list<MySocket> clients;
+private:
+	std::vector<MySocketPair> clients;
+	//std::vector<MySocket> servers;
+	std::vector<WSAEVENT> events;
+	void pushback(int index);
+public:
 	Clients();
-	Clients(MySocket&);
-	void Add(MySocket&);
-	void Delete(MySocket&);
-	pair<WSANETWORKEVENTS,MySocket&> WaitMultyEvent();
-
+	Clients(MySocketPair&);
+	void Add(MySocketPair&);
+	void Delete(MySocketPair&);
+	std::pair<bool, MySocketPair&> Clients::WaitMultyEvent();
+	~Clients();
 };

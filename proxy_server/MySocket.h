@@ -8,13 +8,13 @@ struct MySocket
 	int len_buffer = 0;
 	bool events[9];
 	SOCKET Socket;
+public:
 	WSAEVENT WSAEvent;
 	char buffer[LEN];
 	MySocket();
 	MySocket(SOCKET);
 	MySocket(SOCKET, long events);
 	MySocket(SOCKET, WSAEVENT);
-	MySocket(MySocket const&);
 	bool checkEvent();
 	void Destroy();
 	~MySocket();

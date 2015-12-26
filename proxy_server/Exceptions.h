@@ -1,9 +1,9 @@
 #pragma once
 #include <exception>
 
-struct ExceptionBild:std::exception
+struct ExceptionBind:std::exception
 {
-	ExceptionBild(int port);
+	ExceptionBind(int port);
 };
 
 struct ExceptionListen:std::exception

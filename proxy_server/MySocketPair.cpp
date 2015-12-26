@@ -4,33 +4,39 @@
 #include <assert.h>
 
 
-MySocketPair::MySocketPair(long timeout) :client(), server(), time(timeout)
+MySocketPair::MySocketPair() :client(), server()
 {
 }
 
-MySocketPair::MySocketPair(long timeout,SOCKET client, SOCKET server) :client(client,FD_WRITE|FD_READ), server(server,FD_WRITE|FD_READ),time(timeout)
+MySocketPair::MySocketPair(SOCKET client, SOCKET server) :client(client,FD_WRITE|FD_READ), server(server,FD_WRITE|FD_READ)
 {
 }
 
-MySocketPair::MySocketPair(long timeout, MySocket client1, MySocket server1) : client(client1), server(server1),time(timeout)
+MySocketPair::MySocketPair( MySocket client1, MySocket server1) : client(client1), server(server1)
 {
 }
 
 void MySocketPair::Destroy()
 {
-	client.Destroy();
-	server.Destroy();
+	if (client.Socket != server.Socket)
+	{
+		server.Destroy();
+		client.Destroy();
+	}
+	else
+	{
+		client.Destroy();
+	}
 }
 
 void MySocketPair::ReadAndWrite()
 {
 	if (client.Socket == INVALID_SOCKET || server.Socket == INVALID_SOCKET)
 		return;
-	if (server.checkEvent() || client.checkEvent())
+	//if (server.checkEvent() || client.checkEvent())
 	{
 		if (server.Socket != client.Socket)
 		{
-			time.update();
 			bool flage = true;
 			
 			if (server.events[FD_CONNECT_BIT])
@@ -47,7 +53,7 @@ void MySocketPair::ReadAndWrite()
 					client.len_buffer = recv(server.Socket, client.buffer, server.LEN, 0);
 				}
 				int lenSend = send(client.Socket, client.buffer, client.len_buffer, 0);
-				std::cout << "server to client: " << std::endl /*<< std::string(client.buffer + 0, client.buffer + client.len_buffer) << std::endl << std::endl*/;
+				std::cout << "server to client: " << std::endl/* << std::string(client.buffer + 0, client.buffer + client.len_buffer) << std::endl << std::endl*/;
 				server.events[FD_READ_BIT] = false;
 				flage = false;
 				if (WSAGetLastError() == 10035 || lenSend==-1)

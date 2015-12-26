@@ -1,20 +1,16 @@
 #pragma once
-#include "MySocketPair.h"
-#include <queue>
-#include <Windows.h>
+#include "Clients.h"
 
 struct MyListenSocket
 {
 private:
-	MySocket mySocket;
-	std::queue<MySocketPair> clients;
+	//std::queue<MySocketPair> clients;
 	int timeout;
+	Clients cl;
 public:
 	MyListenSocket(long timeout);
 	MyListenSocket(int port,long timeout);
 	MySocketPair onAccept(MySocket&);
 	void myAccept();
 	void listenClients();
-	void Destroy();
-	~MyListenSocket();
 };
