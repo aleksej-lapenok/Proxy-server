@@ -15,6 +15,6 @@ public:
 	MySocketPair onAccept(MySocket&);
 	void myAccept();
 	void listenClients();
-	void Destroy();
+	void Destroy(); // TODO: remove or make private
 	~MyListenSocket();
 };

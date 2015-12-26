@@ -13,6 +13,7 @@ void timer::update()
 
 bool timer::check()
 {
+	// TODO: get rid of a busy-wait timer
 	return ((long)(clock() - begin)) > miliseconds;
 }
 
