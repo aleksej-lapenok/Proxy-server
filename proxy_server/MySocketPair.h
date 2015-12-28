@@ -4,14 +4,16 @@
 
 struct MySocketPair
 {
-	MySocket client;
-	MySocket server;
+	MySocket* client;
+	MySocket* server;
 private:
 	bool canBeRead = false;
+	void Destroy();
 public:
+	bool is_close = false;
 	MySocketPair();
 	MySocketPair(SOCKET client, SOCKET server);
-	MySocketPair(MySocket, MySocket);
+	MySocketPair(MySocket*, MySocket*);
 	void ReadAndWrite();
-	void Destroy();
+	~MySocketPair();
 };

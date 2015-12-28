@@ -10,6 +10,7 @@ private:
 public:
 	MyListenSocket(long timeout);
 	MyListenSocket(int port,long timeout);
-	MySocketPair onAccept(MySocket&);
+	MySocketPair* onAccept(MySocket*);
 	void myAccept();
+	
 };

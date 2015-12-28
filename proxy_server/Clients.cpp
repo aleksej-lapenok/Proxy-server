@@ -5,64 +5,64 @@ Clients::Clients():clients()
 {
 }
 
-Clients::Clients(MySocketPair& client) : clients()
+Clients::Clients(MySocketPair* client) : clients()
 {
 	Add(client);
 }
 
-void Clients::Add(MySocketPair& client)
+void Clients::Add(MySocketPair* client)
 {
 	clients.push_back(client);
-	//servers.push_back(client.server);
-	events.push_back(client.server.WSAEvent);
-	events.push_back(client.client.WSAEvent);
+	events.push_back(client->server->WSAEvent);
+	events.push_back(client->client->WSAEvent);
 }
 
-void Clients::Delete(MySocketPair& forDel)
+void Clients::Delete(MySocketPair* forDel)
 {
 	std::vector<WSAEVENT>::iterator j = events.begin();
-	for (std::vector<MySocketPair>::iterator i = clients.begin();  i != clients.end(); i++,j++,j++)
+	for (std::vector<MySocketPair*>::iterator i = clients.begin();  i != clients.end(); i++,j++,j++)
 	{
-		if (i->client.Socket == forDel.client.Socket)
+		if (*i == forDel)
 		{
 			clients.erase(i);
 			j=events.erase(j);
 			events.erase(j);
+			delete forDel;
 			break;
 		}
 	}
 }
 
-std::pair<bool,MySocketPair&> Clients::WaitMultyEvent()
+std::pair<bool,MySocketPair*> Clients::WaitMultyEvent()
 {
 	WSAEVENT* array_event = events.data();
 	int index = WSAWaitForMultipleEvents(events.size(), array_event, false, 30*1000, false);
 	if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
 	{
-		MySocketPair& pair = clients[index >> 1];
 		index -= WSA_WAIT_EVENT_0;
+		MySocketPair* pair = clients[index >> 1];
 		bool flage = false;
 		if (index % 2 == 0)
 		{
-			flage=pair.server.checkEvent();
+			flage=pair->server->checkEvent();
 		}
 		else
 		{
-			flage = pair.client.checkEvent();
+			flage = pair->client->checkEvent();
 		}
-		//pushback(index);
-		return std::pair<bool, MySocketPair&>(flage, pair);
+		pushback(index);
+		return std::pair<bool, MySocketPair*>(flage, pair);
 	}
-	return std::pair<bool, MySocketPair&>(false, clients[0]);
+	return std::pair<bool, MySocketPair*>(false, clients[0]);
 }
 
 void Clients::pushback(int index)
 {
-	MySocketPair& pair = clients[index >> 1];
+	MySocketPair* forDel = clients[index >> 1];
 	std::vector<WSAEVENT>::iterator j = events.begin();
-	for (std::vector<MySocketPair>::iterator i = clients.begin(); i != clients.end(); i++, j++, j++)
+	for (std::vector<MySocketPair*>::iterator i = clients.begin(); i != clients.end(); i++, j++, j++)
 	{
-		if (i->client.Socket == pair.client.Socket)
+		if (*i == forDel)
 		{
 			clients.erase(i);
 			j = events.erase(j);
@@ -70,57 +70,13 @@ void Clients::pushback(int index)
 			break;
 		}
 	}
-	this->Add(pair);
+	this->Add(forDel);
 }
 Clients::~Clients()
 {
-	for (std::vector<MySocketPair>::iterator i = clients.begin(); i != clients.end();)
+	for (std::vector<MySocketPair*>::iterator i = clients.begin(); i != clients.end();)
 	{
-		i->Destroy();
+		delete *i;
 		i = clients.erase(i);
 	}
 }
-/*
-pair<WSANETWORKEVENTS, MySocket&> Clients::WaitMultyEvent()
-{
-	WSANETWORKEVENTS wsaNetwork;
-	for (vector<MySocket>::iterator i = clients.begin(); i != clients.end(); i++)
-	{
-		int index = WSAWaitForMultipleEvents(1, &i->WSAEvent, true, 0, false);
-		if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
-		{
-			WSAEnumNetworkEvents(i->Socket, i->WSAEvent, &wsaNetwork);
-			return pair<WSANETWORKEVENTS, MySocket&>(wsaNetwork, *i);
-		}
-	}
-	return pair<WSANETWORKEVENTS, MySocket&>(wsaNetwork, MySocket());
-}*/
-/*
-Clients::iterator(list<MySocket>::iterator iterat)
-{
-	
-}
-MySocket Clients::iterator::operator*() const
-{
-	return *its;
-}
-MySocket Clients::iterator::operator->() const
-{
-	return *its;
-}
-Clients::iterator Clients::iterator::operator--()
-{
-	return --its;
-}
-Clients::iterator Clients::iterator::operator++()
-{
-	return ++its;
-}
-Clients::iterator Clients::iterator::operator--(int)
-{
-	return its--;
-}
-Clients::iterator Clients::iterator::operator++(int)
-{
-	return its++;
-}*/

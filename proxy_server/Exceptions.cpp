@@ -16,3 +16,8 @@ ExceptionInvalidSocket::ExceptionInvalidSocket()
 {
 	exception("Scoket is invalid");
 }
+
+OutOfLen::OutOfLen()
+{
+	exception("OutOfLen_Exception");
+}

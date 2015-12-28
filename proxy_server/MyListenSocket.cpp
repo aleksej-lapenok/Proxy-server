@@ -9,20 +9,20 @@ using namespace std;
 
 MyListenSocket::MyListenSocket(int port,long timeout) 
 {
-	MySocket mySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
+	MySocket* mySocket=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
 	sockaddr_in inetAddr;
 	inetAddr.sin_family = AF_INET;
 	inetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	inetAddr.sin_port = htons(port);
-	if (bind(mySocket.Socket, (SOCKADDR*)&inetAddr, sizeof(inetAddr)))
+	if (bind(mySocket->Socket, (SOCKADDR*)&inetAddr, sizeof(inetAddr)))
 		throw ExceptionBind(port);
 
-	mySocket.WSAEvent = WSACreateEvent();
-	WSAEventSelect(mySocket.Socket, mySocket.WSAEvent, FD_ACCEPT | FD_CLOSE);
-	if (listen(mySocket.Socket, 10))
+	mySocket->WSAEvent = WSACreateEvent();
+	WSAEventSelect(mySocket->Socket, mySocket->WSAEvent, FD_ACCEPT | FD_CLOSE);
+	if (listen(mySocket->Socket, 10))
 		throw ExceptionListen();
 	this->timeout = timeout;
-	MySocketPair listenSocket(mySocket, mySocket);
+	MySocketPair* listenSocket=new MySocketPair(mySocket, mySocket);
 	cl.Add(listenSocket);
 }
 
@@ -31,36 +31,34 @@ MyListenSocket::MyListenSocket(long timeout)
 	MyListenSocket(7777,timeout);
 }
 
-MySocketPair MyListenSocket::onAccept(MySocket& client1)
+MySocketPair* MyListenSocket::onAccept(MySocket* client1)
 {
 	SOCKADDR_IN inetAddr;
 	inetAddr.sin_family = AF_INET;
 	inetAddr.sin_addr.s_addr = inet_addr("77.234.212.58");
 	inetAddr.sin_port = htons(80);
-	MySocket client2(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
-	connect(client2.Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
-	MySocketPair back(client1, client2);
+	MySocket* client2=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
+	connect(client2->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
+	MySocketPair* back=new MySocketPair(client1, client2);
 	return back;
 }
 void MyListenSocket::myAccept()
 {
-	std::pair<bool, MySocketPair&> ev = cl.WaitMultyEvent();
+	std::pair<bool, MySocketPair*> ev = cl.WaitMultyEvent();
 	if (ev.first)
 	{
-		MySocketPair& pair = ev.second;
-		if (pair.server.Socket == ev.second.client.Socket && (pair.client.events[FD_ACCEPT_BIT] || pair.server.events[FD_ACCEPT_BIT]))
+		MySocketPair* pair = ev.second;
+		if (pair->server->Socket == pair->client->Socket && (pair->client->events[FD_ACCEPT_BIT] || pair->server->events[FD_ACCEPT_BIT]))
 		{
-			MySocket client(accept(ev.second.client.Socket, NULL, NULL));
-			client.WSAEvent = WSACreateEvent();
-			WSAEventSelect(client.Socket, client.WSAEvent, FD_READ | FD_WRITE | FD_CONNECT);
-			MySocketPair Client = onAccept(client);
+			MySocket* client=new MySocket(accept(pair->client->Socket, NULL, NULL), FD_READ | FD_WRITE | FD_CONNECT);
+			MySocketPair* Client = onAccept(client);
 			cl.Add(Client);
 			cout << "Client accepted" << endl;
 		}
 		else
 		{
-			pair.ReadAndWrite();
-			if (pair.client.Socket == INVALID_SOCKET || pair.server.Socket == INVALID_SOCKET)
+			pair->ReadAndWrite();
+			if (pair->is_close)
 			{
 				cl.Delete(pair);
 				cout << "Client closed" << endl;

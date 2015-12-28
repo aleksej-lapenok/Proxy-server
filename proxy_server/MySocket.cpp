@@ -42,6 +42,20 @@ MySocket::MySocket(SOCKET sock, WSAEVENT even)
 	}
 }
 
+MySocket::MySocket(MySocket const& other)
+{
+	Socket = INVALID_SOCKET;
+	for (int i = 0; i < 9; i++)
+	{
+		events[i] = false;
+	}
+}
+
+/*MySocket MySocket::operator=(MySocket const& other)
+{
+	return MySocket(other);
+}*/
+
 void MySocket::Destroy()
 {
 	if (Socket != INVALID_SOCKET)
@@ -87,6 +101,5 @@ bool MySocket::checkEvent()
 
 MySocket::~MySocket()
 {
-	//TODO: ???
-	//closesocket(Socket);
+	Destroy();
 }

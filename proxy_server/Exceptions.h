@@ -15,3 +15,8 @@ struct ExceptionInvalidSocket :std::exception
 {
 	ExceptionInvalidSocket();
 };
+
+struct OutOfLen:std::exception
+{
+	OutOfLen();
+};
