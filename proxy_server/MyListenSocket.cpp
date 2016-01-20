@@ -7,7 +7,7 @@
 using namespace std;
 
 
-MyListenSocket::MyListenSocket(int port,long timeout) 
+MyListenSocket::MyListenSocket(int port)
 {
 	MySocket* mySocket=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
 	sockaddr_in inetAddr;
@@ -21,21 +21,20 @@ MyListenSocket::MyListenSocket(int port,long timeout)
 	WSAEventSelect(mySocket->Socket, mySocket->WSAEvent, FD_ACCEPT | FD_CLOSE);
 	if (listen(mySocket->Socket, 10))
 		throw ExceptionListen();
-	this->timeout = timeout;
 	MySocketPair* listenSocket=new MySocketPair(mySocket, mySocket);
 	cl.Add(listenSocket);
 }
 
-MyListenSocket::MyListenSocket(long timeout)
+MyListenSocket::MyListenSocket()
 {
-	MyListenSocket(7777,timeout);
+	MyListenSocket(7777);
 }
 
 MySocketPair* MyListenSocket::onAccept(MySocket* client1)
 {
 	SOCKADDR_IN inetAddr;
 	inetAddr.sin_family = AF_INET;
-	inetAddr.sin_addr.s_addr = inet_addr("77.234.212.58");
+	inetAddr.sin_addr.s_addr = inet_addr("188.165.141.151");
 	inetAddr.sin_port = htons(80);
 	MySocket* client2=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
 	connect(client2->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
@@ -44,6 +43,7 @@ MySocketPair* MyListenSocket::onAccept(MySocket* client1)
 }
 void MyListenSocket::myAccept()
 {
+	static int N = 0;
 	std::pair<bool, MySocketPair*> ev = cl.WaitMultyEvent();
 	if (ev.first)
 	{
@@ -52,7 +52,11 @@ void MyListenSocket::myAccept()
 		{
 			MySocket* client=new MySocket(accept(pair->client->Socket, NULL, NULL), FD_READ | FD_WRITE | FD_CONNECT);
 			MySocketPair* Client = onAccept(client);
+			N++;
+
+			Client->file_name_server = "log/"+std::to_string(N) + "server.txt";
 			cl.Add(Client);
+			Client->file_name_client = "log/"+std::to_string(N) + "client.txt";
 			cout << "Client accepted" << endl;
 		}
 		else
@@ -64,5 +68,9 @@ void MyListenSocket::myAccept()
 				cout << "Client closed" << endl;
 			}
 		}
+	}
+	else
+	{
+		//cl.DeleteAll();
 	}
 }

@@ -42,7 +42,7 @@ MySocket::MySocket(SOCKET sock, WSAEVENT even)
 	}
 }
 
-MySocket::MySocket(MySocket const& other)
+MySocket::MySocket(MySocket const& )
 {
 	Socket = INVALID_SOCKET;
 	for (int i = 0; i < 9; i++)

@@ -4,13 +4,11 @@
 struct MyListenSocket
 {
 private:
-	//std::queue<MySocketPair> clients;
-	int timeout;
 	Clients cl;
+protected:
+	virtual MySocketPair* onAccept(MySocket*);
 public:
-	MyListenSocket(long timeout);
-	MyListenSocket(int port,long timeout);
-	MySocketPair* onAccept(MySocket*);
+	MyListenSocket();
+	MyListenSocket(int port);
 	void myAccept();
-	
 };

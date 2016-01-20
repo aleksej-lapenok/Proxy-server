@@ -1,4 +1,5 @@
 #include "Clients.h"
+#include <assert.h>
 
 
 Clients::Clients():clients()
@@ -36,7 +37,7 @@ void Clients::Delete(MySocketPair* forDel)
 std::pair<bool,MySocketPair*> Clients::WaitMultyEvent()
 {
 	WSAEVENT* array_event = events.data();
-	int index = WSAWaitForMultipleEvents(events.size(), array_event, false, 30*1000, false);
+	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS), array_event, false, WSA_INFINITE, false);
 	if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
 	{
 		index -= WSA_WAIT_EVENT_0;

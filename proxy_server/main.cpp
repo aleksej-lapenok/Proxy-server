@@ -4,8 +4,7 @@
 #include <winsock2.h>
 #include <iostream>
 #include <thread>
-#include "Clients.h"
-#include "MyListenSocket.h"
+#include "httpListenSocket.h"
 
 // Need to link with Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
@@ -20,7 +19,7 @@ int server()
 
 	WSAStartup(MAKEWORD(2, 2), &wsadata);
 
-	MyListenSocket server(2725,60*1000);
+	httpListenSocket server(2725);
 	cout << "Server started" << endl << endl;
 	while (flage)
 	{

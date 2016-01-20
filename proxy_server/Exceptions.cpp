@@ -14,7 +14,7 @@ ExceptionListen::ExceptionListen()
 
 ExceptionInvalidSocket::ExceptionInvalidSocket()
 {
-	exception("Scoket is invalid");
+	exception("Socket is invalid");
 }
 
 OutOfLen::OutOfLen()

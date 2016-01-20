@@ -4,6 +4,7 @@
 #include <assert.h>
 
 
+
 MySocketPair::MySocketPair() :client(), server()
 {
 }
@@ -33,8 +34,58 @@ void MySocketPair::Destroy()
 	}
 }
 
+void MySocketPair::onReadClient()
+{
+	FILE* file_client;
+	fopen_s(&file_client, file_name_client.c_str(), "a");
+	if (server->len_buffer == 0)
+	{
+		server->len_buffer = recv(client->Socket, server->buffer, client->LEN, 0);
+	}
+	int lenSend = send(server->Socket, server->buffer, server->len_buffer, 0);
+	std::cout << "client to server: " << std::endl/* << std::string(server->buffer + 0, server->buffer + server->len_buffer) << std::endl << std::endl*/;
+	if(file_client)
+		fwrite(server->buffer, sizeof(char), server->len_buffer, file_client);
+	client->events[FD_READ_BIT] = false;
+	if (WSAGetLastError() == 10035 || lenSend == -1)
+	{
+		server->events[FD_WRITE_BIT] = false;
+	}
+	else
+	{
+		assert(server->len_buffer == lenSend);
+		server->len_buffer = 0;
+	}
+	fclose(file_client);
+}
+
+void MySocketPair::onReadServer()
+{
+	FILE* file_server;
+	fopen_s(&file_server, file_name_server.c_str(), "a");
+	if (client->len_buffer == 0)
+	{
+		client->len_buffer = recv(server->Socket, client->buffer, server->LEN, 0);
+	}
+	int lenSend = send(client->Socket, client->buffer, client->len_buffer, 0);
+	std::cout << "server to client: " << std::endl/* << std::string(client->buffer + 0, client->buffer + client->len_buffer) << std::endl << std::endl*/;
+	fwrite(client->buffer, sizeof(char), client->len_buffer, file_server);
+	server->events[FD_READ_BIT] = false;
+	if (WSAGetLastError() == 10035 || lenSend == -1)
+	{
+		client->events[FD_WRITE_BIT] = false;
+	}
+	else
+	{
+		assert(client->len_buffer == lenSend);
+		client->len_buffer = 0;
+	}
+	fclose(file_server);
+}
+
 void MySocketPair::ReadAndWrite()
 {
+	
 	if (client->Socket == INVALID_SOCKET || server->Socket == INVALID_SOCKET)
 		return;
 	//if (server->checkEvent() || client->checkEvent())
@@ -52,44 +103,13 @@ void MySocketPair::ReadAndWrite()
 			
 			if (server->events[FD_READ_BIT] && /*canBeRead &&*/ client->events[FD_WRITE_BIT])
 			{
-				if (client->len_buffer == 0)
-				{
-					client->len_buffer = recv(server->Socket, client->buffer, server->LEN, 0);
-				}
-				int lenSend = send(client->Socket, client->buffer, client->len_buffer, 0);
-				std::cout << "server to client: " << std::endl/* << std::string(client->buffer + 0, client->buffer + client->len_buffer) << std::endl << std::endl*/;
-				server->events[FD_READ_BIT] = false;
+				onReadServer();
 				flage = false;
-				if (WSAGetLastError() == 10035 || lenSend==-1)
-				{
-					client->events[FD_WRITE_BIT] = false;
-				}
-				else
-				{
-					assert(client->len_buffer == lenSend);
-					client->len_buffer = 0;
-				}
-
 			}
 			if (client->events[FD_READ_BIT] && /*canBeRead &&*/ server->events[FD_WRITE_BIT])
 			{
-				if (server->len_buffer == 0)
-				{
-					server->len_buffer = recv(client->Socket, server->buffer, client->LEN, 0);
-				}
-				int lenSend = send(server->Socket, server->buffer, server->len_buffer, 0);
-				std::cout << "client to server: " << std::endl/* << std::string(server->buffer + 0, server->buffer + server->len_buffer) << std::endl << std::endl*/;
+				onReadClient();
 				flage = false;
-				client->events[FD_READ_BIT] = false;
-				if (WSAGetLastError() == 10035 || lenSend==-1)
-				{
-					server->events[FD_WRITE_BIT] = false;
-				}
-				else
-				{
-					assert(server->len_buffer == lenSend);
-					server->len_buffer = 0;
-				}
 			}
 			if (flage && (server->events[FD_CLOSE_BIT] || client->events[FD_CLOSE_BIT]))
 			{

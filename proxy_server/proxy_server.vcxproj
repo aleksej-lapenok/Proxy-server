@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B5830ECE-A5A2-48B7-B025-75BBA5977633}</ProjectGuid>
+    <ProjectGuid>{EE2A22BB-7181-47B8-B1AB-43073E7C058D}</ProjectGuid>
     <RootNamespace>proxy_server</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -47,6 +47,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -70,15 +71,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Clients.cpp" />
-    <ClCompile Include="Clients.h" />
     <ClCompile Include="Exceptions.cpp" />
+    <ClCompile Include="httpListenSocket.cpp" />
+    <ClCompile Include="httpRequest.cpp" />
+    <ClCompile Include="httpSocketPair.cpp" />
     <ClCompile Include="MyListenSocket.cpp" />
     <ClCompile Include="MySocket.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySocketPair.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Clients.h" />
     <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="httpListenSocket.h" />
+    <ClInclude Include="httpRequest.h" />
+    <ClInclude Include="httpSocketPair.h" />
     <ClInclude Include="MyListenSocket.h" />
     <ClInclude Include="MySocket.h" />
     <ClInclude Include="MySocketPair.h" />
