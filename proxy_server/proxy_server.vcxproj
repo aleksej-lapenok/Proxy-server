@@ -74,6 +74,8 @@
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="httpListenSocket.cpp" />
     <ClCompile Include="httpRequest.cpp" />
+    <ClCompile Include="httpRequestClient.cpp" />
+    <ClCompile Include="httpRequestServer.cpp" />
     <ClCompile Include="httpSocketPair.cpp" />
     <ClCompile Include="MyListenSocket.cpp" />
     <ClCompile Include="MySocket.cpp" />
@@ -85,6 +87,8 @@
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="httpListenSocket.h" />
     <ClInclude Include="httpRequest.h" />
+    <ClInclude Include="httpRequestClient.h" />
+    <ClInclude Include="httpRequestServer.h" />
     <ClInclude Include="httpSocketPair.h" />
     <ClInclude Include="MyListenSocket.h" />
     <ClInclude Include="MySocket.h" />

@@ -1,17 +1,20 @@
 #pragma once
 
 #include "MySocketPair.h"
-#include "httpRequest.h"
+#include "httpRequestClient.h"
+#include "httpRequestServer.h"
 #include <string>
 #include <iostream>
 
 struct httpSocketPair :MySocketPair
 {
-	httpSocketPair(MySocket* first, MySocket* second):MySocketPair(first,second){}
+	httpSocketPair(MySocket* first, MySocket* second);
 protected:
 	virtual void onReadClient();
 	virtual void onReadServer();
 private:
-	httpRequest requestS,requestC;
+	httpRequestClient requestC;
+	httpRequestServer requestS;
+	std::string beginS = "", beginC = "";
 	bool findRequst(std::string&,bool);
 };
