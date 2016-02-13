@@ -8,7 +8,7 @@
 
 struct httpSocketPair :MySocketPair
 {
-	httpSocketPair(MySocket* first, MySocket* second);
+	httpSocketPair(int t,MySocket* first, MySocket* second);
 protected:
 	virtual void onReadClient();
 	virtual void onReadServer();

@@ -2,3 +2,5 @@
 /Realeas
 *.obj
 *.exe
+/.vs
+*.sio

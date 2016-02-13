@@ -7,8 +7,9 @@ private:
 	Clients cl;
 protected:
 	virtual MySocketPair* onAccept(MySocket*);
+	int timeout;
 public:
-	MyListenSocket();
-	MyListenSocket(int port);
+	MyListenSocket(int);
+	MyListenSocket(int,int port);
 	void myAccept();
 };

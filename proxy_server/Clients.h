@@ -8,7 +8,7 @@ private:
 	std::vector<MySocketPair*> clients;
 	//std::vector<MySocket> servers;
 	std::vector<WSAEVENT> events;
-	void pushback(int index);
+	void pushback(MySocketPair*);
 public:
 	Clients();
 	Clients(MySocketPair*);

@@ -5,8 +5,8 @@
 
 struct httpListenSocket :public MyListenSocket
 {
-	httpListenSocket() :MyListenSocket(){}
-	httpListenSocket(int port):MyListenSocket(port){}
+	httpListenSocket(int t) :MyListenSocket(t){}
+	httpListenSocket(int t,int port):MyListenSocket(t,port){}
 protected:
 	virtual MySocketPair* onAccept(MySocket*);
 };

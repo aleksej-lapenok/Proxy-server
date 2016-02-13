@@ -6,13 +6,13 @@
 
 struct MySocketPair
 {
-	std::string file_name_server = "server";
-	std::string file_name_client = "client";
 
 	MySocket* client;
 	MySocket* server;
 	bool canBeRead = false;
+	int timeout;
 private:
+	int max_timer;
 	void Destroy();
 protected:
 	virtual void onReadClient();
@@ -20,9 +20,10 @@ protected:
 	
 public:
 	bool is_close = false;
-	MySocketPair();
-	MySocketPair(SOCKET client, SOCKET server);
-	MySocketPair(MySocket*, MySocket*);
+	MySocketPair(int);
+	MySocketPair(int,SOCKET client, SOCKET server);
+	MySocketPair(int,MySocket*, MySocket*);
+	void updateTimer();
 	void ReadAndWrite();
 	virtual ~MySocketPair();
 };

@@ -15,7 +15,7 @@ httpRequest::httpRequest(httpRequest const& other) : str(other.str), params(othe
 
 }
 
-void httpRequest::setStr(std::string& str1)
+void httpRequest::setStr(std::string str1)
 {
 	str = str1;
 	params.clear();

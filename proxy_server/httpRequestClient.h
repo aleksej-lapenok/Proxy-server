@@ -8,6 +8,7 @@ struct httpRequestClient :httpRequest
 	{}
 	std::string getMethod();
 	std::string getPath();
+
 protected:
 	virtual void parseFirstLine();
 	std::string method;

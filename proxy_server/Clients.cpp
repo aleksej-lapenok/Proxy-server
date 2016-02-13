@@ -1,5 +1,7 @@
 #include "Clients.h"
 #include <assert.h>
+#include <iostream>
+#include <ctime>
 
 
 Clients::Clients():clients()
@@ -20,6 +22,10 @@ void Clients::Add(MySocketPair* client)
 
 void Clients::Delete(MySocketPair* forDel)
 {
+	if (forDel->client == forDel->server)
+	{
+		return;
+	}
 	std::vector<WSAEVENT>::iterator j = events.begin();
 	for (std::vector<MySocketPair*>::iterator i = clients.begin();  i != clients.end(); i++,j++,j++)
 	{
@@ -37,29 +43,45 @@ void Clients::Delete(MySocketPair* forDel)
 std::pair<bool,MySocketPair*> Clients::WaitMultyEvent()
 {
 	WSAEVENT* array_event = events.data();
-	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS), array_event, false, WSA_INFINITE, false);
+	std::cout << "count of clients: " << events.size() / 2 - 1 << std::endl;
+	clock_t start = clock();
+	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS-1), array_event, false, clients[0]->timeout, false);
 	if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
 	{
 		index -= WSA_WAIT_EVENT_0;
 		MySocketPair* pair = clients[index >> 1];
+		if (index != 0 && pair->client != pair->server)
+		{
+			clients[0]->timeout -= (clock() - start);
+			if (clients[0] != pair && clients[0]->timeout < 0)
+			{
+				Delete(clients[0]);
+			}
+		}
+		pair->updateTimer();
 		bool flage = false;
 		if (index % 2 == 0)
 		{
-			flage=pair->server->checkEvent();
+			flage = pair->server->checkEvent();
 		}
 		else
 		{
 			flage = pair->client->checkEvent();
 		}
-		pushback(index);
+		pushback(pair);
 		return std::pair<bool, MySocketPair*>(flage, pair);
+	}
+	if (index == WSA_WAIT_TIMEOUT)
+	{
+		Delete(clients[0]);
+		return std::pair<bool, MySocketPair*>(false, NULL);
 	}
 	return std::pair<bool, MySocketPair*>(false, clients[0]);
 }
 
-void Clients::pushback(int index)
+void Clients::pushback(MySocketPair* forDel)
 {
-	MySocketPair* forDel = clients[index >> 1];
+	//MySocketPair* forDel = clients[index >> 1];
 	std::vector<WSAEVENT>::iterator j = events.begin();
 	for (std::vector<MySocketPair*>::iterator i = clients.begin(); i != clients.end(); i++, j++, j++)
 	{

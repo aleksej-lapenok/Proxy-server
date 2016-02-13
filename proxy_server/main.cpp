@@ -19,7 +19,7 @@ int server()
 
 	WSAStartup(MAKEWORD(2, 2), &wsadata);
 
-	httpListenSocket server(2725);
+	httpListenSocket server(1000*6,2725);
 	cout << "Server started" << endl << endl;
 	while (flage)
 	{

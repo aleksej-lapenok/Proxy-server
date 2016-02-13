@@ -4,18 +4,14 @@
 #include <iostream>
 #include <assert.h>
 
-httpSocketPair::httpSocketPair(MySocket* client, MySocket* server) :MySocketPair(client, server)
+httpSocketPair::httpSocketPair(int t,MySocket* client, MySocket* server) :MySocketPair(t,client, server)
 {
-	SOCKADDR_IN inetAddr;
-	inetAddr.sin_family = AF_INET;
-	inetAddr.sin_addr.s_addr = inet_addr(/*"188.165.141.151"*/"77.234.212.58");
-	inetAddr.sin_port = htons(80);
-	connect(server->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
+	server->events[FD_WRITE_BIT] = true;
 }
 
 void httpSocketPair::onReadClient()
 {
-	if (server->len_buffer <= 0)
+	if (server->len_buffer <= 0 || requestC.isEmpty())
 	{
 		server->len_buffer = recv(client->Socket, server->buffer, client->LEN, 0);
 		client->events[FD_READ_BIT] = false;
@@ -27,32 +23,54 @@ void httpSocketPair::onReadClient()
 	if (requestC.isEmpty())
 	{
 		beginC = beginC+ std::string(server->buffer + 0, server->buffer + server->len_buffer);
-		if (findRequst(beginC,true))
+		if (findRequst(beginC, true))
 		{
+			
 			beginC = "";
-			FILE* file_client;
-			fopen_s(&file_client, file_name_client.c_str(), "w");
-			if (file_client)
-				fprintf(file_client,"%s", requestC.toString().c_str());
-			fclose(file_client);
+			//canBeRead = false;
+			SOCKADDR_IN inetAddr;
+			inetAddr.sin_family = AF_INET;
+			inetAddr.sin_addr.s_addr = inet_addr(/*"188.165.141.151"*/"213.33.175.27");
+			inetAddr.sin_port = htons(8080);
+			connect(server->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
+			server->len_buffer = requestC.toString().size()+4;
+			for (int i = 0; i < server->len_buffer-4; i++)
+			{
+				server->buffer[i] = requestC.toString()[i];
+			}
+			for (int i = server->len_buffer - 4; i < server->len_buffer; i+=2)
+			{
+				server->buffer[i] = "\r"[0];
+				server->buffer[i + 1] = "\n"[0];
+			}
+			server->events[FD_WRITE_BIT] = false;
+			client->events[FD_READ_BIT] = true;
+		}
+		else
+		{
+			return;
 		}
 	}
-	int lenSend = send(server->Socket, server->buffer, server->len_buffer, 0);
-	std::cout << "client to server" << std::endl;
-	if (WSAGetLastError() == 10035 || lenSend == -1)
+	if(server->events[FD_WRITE_BIT])
 	{
-		server->events[FD_WRITE_BIT] = false;
-	}
-	else
-	{
-		assert(server->len_buffer == lenSend);
-		server->len_buffer = 0;
+		int lenSend = send(server->Socket, server->buffer, server->len_buffer, 0);
+		std::cout << "client to server" << std::endl;
+		if (WSAGetLastError() == 10035 || lenSend == -1)
+		{
+			server->events[FD_WRITE_BIT] = false;
+			client->events[FD_READ_BIT] = true;
+		}
+		else
+		{
+			assert(server->len_buffer == lenSend);
+			server->len_buffer = 0;
+		}
 	}
 }
 
 void httpSocketPair::onReadServer()
 {
-	if (client->len_buffer == 0)
+	if (client->len_buffer <= 0)
 	{
 		client->len_buffer = recv(server->Socket, client->buffer, server->LEN, 0);
 		server->events[FD_READ_BIT] = false;
@@ -63,15 +81,10 @@ void httpSocketPair::onReadServer()
 	}
 	if (requestS.isEmpty())
 	{
-		beginS = beginS+std::string(client->buffer + 0, client->buffer + client->len_buffer);
+		beginS = beginS+std::string(client->buffer + 0, client->buffer + client->len_buffer);//len_buffer> size(buffer) bug!!!!
 		if (findRequst(beginS, false))
 		{
 			beginS = "";
-			FILE* file_server;
-			fopen_s(&file_server, file_name_server.c_str(), "w");
-			if (file_server)
-				fprintf(file_server, "%s", requestS.toString().c_str());
-			fclose(file_server);
 		}
 	}
 	int lenSend = send(client->Socket, client->buffer, client->len_buffer, 0);
