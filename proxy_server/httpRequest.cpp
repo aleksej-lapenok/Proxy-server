@@ -1,4 +1,5 @@
 #include "httpRequest.h"
+#include <algorithm>
 
 httpRequest::httpRequest()
 {
@@ -22,10 +23,6 @@ void httpRequest::setStr(std::string str1)
 	parse();
 }
 
-bool httpRequest::isEmpty()
-{
-	return str.size() == 0;
-}
 
 std::string httpRequest::toString()
 {
@@ -35,12 +32,21 @@ std::string httpRequest::toString()
 void httpRequest::parse()
 {
 	parseFirstLine();
+	if (stat == BAD)
+	{
+		return;
+	}
 	size_t k = str.find("\r\n")+2;
 	size_t i = str.find(": ",k);
 	size_t j = str.find("\r\n",k);
 	std::string method = "", value = "";
 	while (i != std::string::npos && j!=std::string::npos)
 	{
+		if (!(k < i && i < j))
+		{
+			stat = BAD;
+			return;
+		}
 		method = str.substr(k, i - k);
 		value = str.substr(i + 2, j - 2 - i);
 		params.insert(std::pair<std::string, std::string>(method, value));
@@ -48,9 +54,15 @@ void httpRequest::parse()
 		i = str.find(": ",k);
 		j = str.find("\r\n",k);
 	}
+	if (!(k < i && i < j))
+	{
+		stat = BAD;
+		return;
+	}
 	method = str.substr(k,i-k);
 	value = str.substr(i + 2, j - 2 - i);
 	params.insert(std::pair<std::string, std::string>(method, value));
+	stat = GOOD;
 }
 
 std::string httpRequest::getMethod(std::string const& method)
@@ -64,4 +76,9 @@ std::string httpRequest::getMethod(std::string const& method)
 	{
 		return "";
 	}
+}
+
+void httpRequest::toUpper(std::string* str)
+{
+	std::transform(str->begin(), str->end(), str->begin(), toupper);
 }

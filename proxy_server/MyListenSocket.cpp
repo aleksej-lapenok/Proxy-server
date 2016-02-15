@@ -22,7 +22,7 @@ MyListenSocket::MyListenSocket(int t,int port)
 	WSAEventSelect(mySocket->Socket, mySocket->WSAEvent, FD_ACCEPT | FD_CLOSE);
 	if (listen(mySocket->Socket, 10))
 		throw ExceptionListen();
-	MySocketPair* listenSocket=new MySocketPair(WSA_INFINITE,mySocket, mySocket);
+	MySocketPair* listenSocket=new MySocketPair(timeout,mySocket, mySocket);
 	cl.Add(listenSocket);
 }
 

@@ -11,7 +11,11 @@ struct httpRequest
 	void setStr(std::string);
 	std::string toString();
 	std::string getMethod(std::string const&);
-	bool isEmpty();
+	enum STAT
+	{
+		BAD, GOOD, NON
+	};
+	STAT stat = STAT::NON;
 	virtual ~httpRequest() {}
 protected:
 	virtual void parseFirstLine() = 0;
@@ -19,5 +23,6 @@ protected:
 	std::string type;
 	std::string str = "";
 	void parse();
+	void toUpper(std::string*);
 };
 

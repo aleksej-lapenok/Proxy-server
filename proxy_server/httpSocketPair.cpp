@@ -11,7 +11,7 @@ httpSocketPair::httpSocketPair(int t,MySocket* client, MySocket* server) :MySock
 
 void httpSocketPair::onReadClient()
 {
-	if (server->len_buffer <= 0 || requestC.isEmpty())
+	if (server->len_buffer <= 0 || requestC.stat==requestC.NON)
 	{
 		server->len_buffer = recv(client->Socket, server->buffer, client->LEN, 0);
 		client->events[FD_READ_BIT] = false;
@@ -20,12 +20,16 @@ void httpSocketPair::onReadClient()
 	{
 		return;
 	}
-	if (requestC.isEmpty())
+	if (requestC.stat==requestC.NON)
 	{
 		beginC = beginC+ std::string(server->buffer + 0, server->buffer + server->len_buffer);
+		server->len_buffer = 0;
 		if (findRequst(beginC, true))
 		{
-			
+			if (requestC.stat == requestC.BAD)
+			{
+				this->is_close = true;
+			}
 			beginC = "";
 			//canBeRead = false;
 			SOCKADDR_IN inetAddr;
@@ -79,7 +83,7 @@ void httpSocketPair::onReadServer()
 	{
 		return;
 	}
-	if (requestS.isEmpty())
+	if (requestS.stat=requestC.NON)
 	{
 		beginS = beginS+std::string(client->buffer + 0, client->buffer + client->len_buffer);//len_buffer> size(buffer) bug!!!!
 		if (findRequst(beginS, false))
@@ -104,14 +108,14 @@ bool httpSocketPair::findRequst(std::string& str,bool flage)
 {
 	if (flage)
 	{
-		if (!requestC.isEmpty())
+		if (requestC.stat!=requestC.NON)
 		{
 			return true;
 		}
 	}
 	else
 	{
-		if (!requestS.isEmpty())
+		if (requestS.stat!=requestS.NON)
 		{
 			return true;
 		}
