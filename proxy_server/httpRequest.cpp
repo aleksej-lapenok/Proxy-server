@@ -16,7 +16,7 @@ httpRequest::httpRequest(httpRequest const& other) : str(other.str), params(othe
 
 }
 
-void httpRequest::setStr(std::string str1)
+void httpRequest::setStr(std::string const& str1)
 {
 	str = str1;
 	params.clear();
@@ -54,7 +54,7 @@ void httpRequest::parse()
 		i = str.find(": ",k);
 		j = str.find("\r\n",k);
 	}
-	if (!(k < i && i < j))
+	if (!(k < i && i < j) && !(i==j && j==std::string::npos))
 	{
 		stat = BAD;
 		return;

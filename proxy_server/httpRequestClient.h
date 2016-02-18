@@ -6,12 +6,15 @@ struct httpRequestClient :httpRequest
 {
 	httpRequestClient():httpRequest()
 	{}
-	std::string getMethod();
-	std::string getPath();
+	std::string makeRequest();
+	std::string getUrl();
+	int getPort();
 
 protected:
 	virtual void parseFirstLine();
 	std::string method;
 	std::string path;
 	std::string version;
+	std::string url;
+	int port;
 };

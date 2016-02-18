@@ -99,7 +99,7 @@ void MySocketPair::ReadAndWrite()
 			
 			if (server->events[FD_CONNECT_BIT])
 			{
-				std::cout << "client connected" << std::endl;
+				//std::cout << "client connected" << std::endl;
 				server->events[FD_CONNECT_BIT] = false;
 				canBeRead = true;
 			}

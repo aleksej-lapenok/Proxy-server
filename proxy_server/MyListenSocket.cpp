@@ -53,7 +53,7 @@ void MyListenSocket::myAccept()
 			MySocket* client=new MySocket(accept(pair->client->Socket, NULL, NULL), FD_READ | FD_WRITE | FD_CONNECT);
 			MySocketPair* Client = onAccept(client);
 			cl.Add(Client);
-			cout << "Client accepted" << endl;
+			//cout << "Client accepted" << endl;
 		}
 		else
 		{
@@ -61,7 +61,7 @@ void MyListenSocket::myAccept()
 			if (pair->is_close)
 			{
 				cl.Delete(pair);
-				cout << "Client closed" << endl;
+				//cout << "Client closed" << endl;
 			}
 		}
 	}

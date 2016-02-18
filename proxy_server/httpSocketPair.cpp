@@ -3,6 +3,7 @@
 #include "httpSocketPair.h"
 #include <iostream>
 #include <assert.h>
+#include <WinSock2.h>
 
 httpSocketPair::httpSocketPair(int t,MySocket* client, MySocket* server) :MySocketPair(t,client, server)
 {
@@ -31,16 +32,16 @@ void httpSocketPair::onReadClient()
 				this->is_close = true;
 			}
 			beginC = "";
-			//canBeRead = false;
 			SOCKADDR_IN inetAddr;
 			inetAddr.sin_family = AF_INET;
-			inetAddr.sin_addr.s_addr = inet_addr(/*"188.165.141.151"*/"213.33.175.27");
-			inetAddr.sin_port = htons(8080);
+			inetAddr.sin_addr.s_addr = *((unsigned long*)gethostbyname(requestC.getUrl().c_str())->h_addr);
+			inetAddr.sin_port = htons(requestC.getPort());
 			connect(server->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
 			server->len_buffer = requestC.toString().size()+4;
+			std::string request = requestC.makeRequest();
 			for (int i = 0; i < server->len_buffer-4; i++)
 			{
-				server->buffer[i] = requestC.toString()[i];
+				server->buffer[i] = request[i];
 			}
 			for (int i = server->len_buffer - 4; i < server->len_buffer; i+=2)
 			{
@@ -58,7 +59,7 @@ void httpSocketPair::onReadClient()
 	if(server->events[FD_WRITE_BIT])
 	{
 		int lenSend = send(server->Socket, server->buffer, server->len_buffer, 0);
-		std::cout << "client to server" << std::endl;
+		//std::cout << "client to server" << std::endl;
 		if (WSAGetLastError() == 10035 || lenSend == -1)
 		{
 			server->events[FD_WRITE_BIT] = false;
@@ -83,7 +84,7 @@ void httpSocketPair::onReadServer()
 	{
 		return;
 	}
-	if (requestS.stat=requestC.NON)
+	if (requestS.stat==requestC.NON)
 	{
 		beginS = beginS+std::string(client->buffer + 0, client->buffer + client->len_buffer);//len_buffer> size(buffer) bug!!!!
 		if (findRequst(beginS, false))
@@ -92,7 +93,7 @@ void httpSocketPair::onReadServer()
 		}
 	}
 	int lenSend = send(client->Socket, client->buffer, client->len_buffer, 0);
-	std::cout << "server to client" << std::endl;
+	//std::cout << "server to client" << std::endl;
 	if (WSAGetLastError() == 10035 || lenSend == -1)
 	{
 		client->events[FD_WRITE_BIT] = false;

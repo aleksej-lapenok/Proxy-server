@@ -8,7 +8,7 @@ struct httpRequest
 	httpRequest();
 	httpRequest(std::string&);
 	httpRequest(httpRequest const&);
-	void setStr(std::string);
+	void setStr(std::string const&);
 	std::string toString();
 	std::string getMethod(std::string const&);
 	enum STAT
