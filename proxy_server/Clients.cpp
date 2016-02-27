@@ -22,8 +22,9 @@ void Clients::Add(MySocketPair* client)
 
 void Clients::Delete(MySocketPair* forDel)
 {
-	if (forDel->client == forDel->server)
+	if (forDel->client == forDel->server || forDel->timeout > 0)
 	{
+		pushback(forDel);
 		return;
 	}
 	std::vector<WSAEVENT>::iterator j = events.begin();
@@ -43,7 +44,11 @@ void Clients::Delete(MySocketPair* forDel)
 std::pair<bool,MySocketPair*> Clients::WaitMultyEvent()
 {
 	WSAEVENT* array_event = events.data();
-	std::cout << "count of clients: " << events.size() / 2 - 1 << std::endl;
+	if (cout_clients != clients.size() - 1)
+	{
+		std::cout << "count of clients: " << clients.size() - 1 << std::endl;
+		cout_clients = clients.size() - 1;
+	}
 	clock_t start = clock();
 	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS-1), array_event, false, clients[0]->timeout, false);
 	if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
@@ -81,7 +86,6 @@ std::pair<bool,MySocketPair*> Clients::WaitMultyEvent()
 
 void Clients::pushback(MySocketPair* forDel)
 {
-	//MySocketPair* forDel = clients[index >> 1];
 	std::vector<WSAEVENT>::iterator j = events.begin();
 	for (std::vector<MySocketPair*>::iterator i = clients.begin(); i != clients.end(); i++, j++, j++)
 	{

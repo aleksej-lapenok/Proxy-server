@@ -17,6 +17,7 @@ private:
 protected:
 	virtual void onReadClient();
 	virtual void onReadServer();
+	virtual void onConnected();
 	
 public:
 	bool is_close = false;

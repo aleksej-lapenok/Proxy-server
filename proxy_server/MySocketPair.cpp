@@ -86,6 +86,12 @@ void MySocketPair::onReadServer()
 	}
 }
 
+void MySocketPair::onConnected()
+{
+	std::cout << "client connected" << std::endl;
+	server->events[FD_CONNECT_BIT] = false;
+}
+
 void MySocketPair::ReadAndWrite()
 {
 	
@@ -99,9 +105,9 @@ void MySocketPair::ReadAndWrite()
 			
 			if (server->events[FD_CONNECT_BIT])
 			{
-				//std::cout << "client connected" << std::endl;
-				server->events[FD_CONNECT_BIT] = false;
+				onConnected();
 				canBeRead = true;
+				flage = false;
 			}
 			
 			if ((server->events[FD_READ_BIT] || server->len_buffer>0) && /*canBeRead &&*/ client->events[FD_WRITE_BIT])

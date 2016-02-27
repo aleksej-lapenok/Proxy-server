@@ -30,26 +30,42 @@ void httpSocketPair::onReadClient()
 			if (requestC.stat == requestC.BAD)
 			{
 				this->is_close = true;
+				return;
 			}
 			beginC = "";
 			SOCKADDR_IN inetAddr;
 			inetAddr.sin_family = AF_INET;
-			inetAddr.sin_addr.s_addr = *((unsigned long*)gethostbyname(requestC.getUrl().c_str())->h_addr);
-			inetAddr.sin_port = htons(requestC.getPort());
+			/*if (requestC.getMethod() == "CONNECT")
+			{
+				inetAddr.sin_addr.s_addr = inet_addr("93.171.164.251");
+				inetAddr.sin_port = htons(3128);
+			}
+			else
+			{*/
+				/*this->is_close = true;
+				return;*/
+				inetAddr.sin_addr.s_addr = *((unsigned long*)gethostbyname(requestC.getUrl().c_str())->h_addr);
+				inetAddr.sin_port = htons(requestC.getPort());
+			//}
+			
 			connect(server->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
 			server->len_buffer = requestC.toString().size()+4;
 			std::string request = requestC.makeRequest();
-			for (int i = 0; i < server->len_buffer-4; i++)
+			if (requestC.getMethod() != "CONNECT")
 			{
-				server->buffer[i] = request[i];
+				for (int i = 0; i < request.size(); i++)
+				{
+					server->buffer[i] = request[i];
+				}
+				for (int i = server->len_buffer - 4; i < server->len_buffer; i += 2)
+				{
+					server->buffer[i] = "\r"[0];
+					server->buffer[i + 1] = "\n"[0];
+				}
+
+				server->events[FD_WRITE_BIT] = false;
+				client->events[FD_READ_BIT] = true;
 			}
-			for (int i = server->len_buffer - 4; i < server->len_buffer; i+=2)
-			{
-				server->buffer[i] = "\r"[0];
-				server->buffer[i + 1] = "\n"[0];
-			}
-			server->events[FD_WRITE_BIT] = false;
-			client->events[FD_READ_BIT] = true;
 		}
 		else
 		{
@@ -84,16 +100,21 @@ void httpSocketPair::onReadServer()
 	{
 		return;
 	}
-	if (requestS.stat==requestC.NON)
+	if (requestS.stat == requestC.NON)
 	{
-		beginS = beginS+std::string(client->buffer + 0, client->buffer + client->len_buffer);//len_buffer> size(buffer) bug!!!!
+		beginS = beginS + std::string(client->buffer + 0, client->buffer + client->len_buffer);//len_buffer> size(buffer) bug!!!!
 		if (findRequst(beginS, false))
 		{
 			beginS = "";
+			if (requestC.getMethod() == "CONNECT")
+			{
+				std::cout << requestC.toString() << std::endl;
+				std::cout << requestS.toString() << std::endl;
+				std::cout << std::endl;
+			}
 		}
 	}
 	int lenSend = send(client->Socket, client->buffer, client->len_buffer, 0);
-	//std::cout << "server to client" << std::endl;
 	if (WSAGetLastError() == 10035 || lenSend == -1)
 	{
 		client->events[FD_WRITE_BIT] = false;
@@ -102,6 +123,20 @@ void httpSocketPair::onReadServer()
 	{
 		assert(client->len_buffer == lenSend);
 		client->len_buffer = 0;
+	}
+}
+
+void httpSocketPair::onConnected()
+{
+	if (requestC.getMethod() == "CONNECT")
+	{
+		std::string answer = "HTTP/1.1 200 Connection established\r\n\r\n";
+		client->len_buffer = answer.size();
+		for (int i = 0; i < answer.size(); i++)
+		{
+			client->buffer[i] = answer[i];
+		}
+		onReadServer();
 	}
 }
 

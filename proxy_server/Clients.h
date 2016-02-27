@@ -9,6 +9,7 @@ private:
 	//std::vector<MySocket> servers;
 	std::vector<WSAEVENT> events;
 	void pushback(MySocketPair*);
+	int cout_clients = 0;
 public:
 	Clients();
 	Clients(MySocketPair*);

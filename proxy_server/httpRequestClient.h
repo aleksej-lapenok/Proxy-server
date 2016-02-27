@@ -8,6 +8,7 @@ struct httpRequestClient :httpRequest
 	{}
 	std::string makeRequest();
 	std::string getUrl();
+	std::string getMethod();
 	int getPort();
 
 protected:

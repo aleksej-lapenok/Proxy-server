@@ -63,9 +63,9 @@ void httpRequestClient::parseFirstLine()
 	{
 		stat = BAD;
 	}
-	std::cout << url << std::endl;
+	/*std::cout << url << std::endl;
 	std::cout << port << std::endl;
-	std::cout << path << std::endl;
+	std::cout << path << std::endl;*/
 }
 
 std::string httpRequestClient::makeRequest()
@@ -81,4 +81,9 @@ std::string httpRequestClient::getUrl()
 int httpRequestClient::getPort()
 {
 	return port;
+}
+
+std::string httpRequestClient::getMethod()
+{
+	return method;
 }

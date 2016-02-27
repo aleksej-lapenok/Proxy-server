@@ -12,6 +12,7 @@ struct httpSocketPair :MySocketPair
 protected:
 	virtual void onReadClient();
 	virtual void onReadServer();
+	virtual void onConnected();
 private:
 	httpRequestClient requestC;
 	httpRequestServer requestS;
