@@ -15,6 +15,6 @@ public:
 	Clients(MySocketPair*);
 	void Add(MySocketPair*);
 	void Delete(MySocketPair*);
-	std::pair<bool, MySocketPair*> Clients::WaitMultyEvent();
+	std::pair<bool, MySocketPair*> WaitMultyEvent();
 	~Clients();
 };

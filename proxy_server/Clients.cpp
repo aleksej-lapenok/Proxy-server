@@ -101,6 +101,8 @@ void Clients::pushback(MySocketPair* forDel)
 }
 Clients::~Clients()
 {
+	// TODO: O(N^2)
+	// TODO: make clients std::vector<std:unique_ptr<MySocketPair> >
 	for (std::vector<MySocketPair*>::iterator i = clients.begin(); i != clients.end();)
 	{
 		delete *i;
