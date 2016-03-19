@@ -11,6 +11,7 @@
 
 using namespace std;
 
+// TODO: use std::atomic<bool>
 bool flage = true;
 
 int server()
