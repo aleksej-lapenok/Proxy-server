@@ -1,8 +1,11 @@
 #include "httpListenSocket.h"
 
-MySocketPair* httpListenSocket::onAccept(MySocket* client1)
+void httpListenSocket::onAccept(MySocket* listenSocket)
 {
-	MySocket* client2 = new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP), FD_READ | FD_WRITE | FD_CONNECT);
-	MySocketPair* back = new httpSocketPair(timeout,client1, client2);
-	return back;
+	MySocket* client1 = new httpSocket<true>(accept(listenSocket->Socket, NULL, NULL), FD_READ | FD_WRITE);
+	MySocket* client2 = new httpSocket<false>(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP), FD_READ | FD_WRITE | FD_CONNECT);
+	client1->other = client2;
+	client2->other = client1;
+	cl.Add(client2);
+	cl.Add(client1);
 }

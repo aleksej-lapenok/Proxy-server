@@ -3,6 +3,7 @@
 #include "MyListenSocket.h"
 #include "Exceptions.h"
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -22,8 +23,7 @@ MyListenSocket::MyListenSocket(int t,int port)
 	WSAEventSelect(mySocket->Socket, mySocket->WSAEvent, FD_ACCEPT | FD_CLOSE);
 	if (listen(mySocket->Socket, 10))
 		throw ExceptionListen();
-	MySocketPair* listenSocket=new MySocketPair(timeout,mySocket, mySocket);
-	cl.Add(listenSocket);
+	cl.Add(mySocket);
 }
 
 MyListenSocket::MyListenSocket(int t)
@@ -31,7 +31,7 @@ MyListenSocket::MyListenSocket(int t)
 	MyListenSocket(t,7777);
 }
 
-MySocketPair* MyListenSocket::onAccept(MySocket* client1)
+void MyListenSocket::onAccept(MySocket* client1)
 {
 	SOCKADDR_IN inetAddr;
 	inetAddr.sin_family = AF_INET;
@@ -39,26 +39,27 @@ MySocketPair* MyListenSocket::onAccept(MySocket* client1)
 	inetAddr.sin_port = htons(80);
 	MySocket* client2=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
 	connect(client2->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
-	MySocketPair* back=new MySocketPair(timeout,client1, client2);
-	return back;
+	client1->other = client2;
+	client2->other = client1;
+	cl.Add(client2);
 }
 void MyListenSocket::myAccept()
 {
-	std::pair<bool, MySocketPair*> ev = cl.WaitMultyEvent();
+	std::pair<bool, MySocket*> ev = cl.WaitMultyEvent();
 	if (ev.first)
 	{
-		MySocketPair* pair = ev.second;
-		if (pair->server->Socket == pair->client->Socket && (pair->client->events[FD_ACCEPT_BIT] || pair->server->events[FD_ACCEPT_BIT]))
+		MySocket* pair = ev.second;
+		if (pair->events[FD_ACCEPT_BIT])
 		{
-			MySocket* client=new MySocket(accept(pair->client->Socket, NULL, NULL), FD_READ | FD_WRITE | FD_CONNECT);
-			MySocketPair* Client = onAccept(client);
-			cl.Add(Client);
+			//MySocket* client=new MySocket(accept(pair->Socket, NULL, NULL), FD_READ | FD_WRITE | FD_CONNECT);
+			onAccept(pair);
+			//cl.Add(client);
 			//cout << "Client accepted" << endl;
 		}
 		else
 		{
 			pair->ReadAndWrite();
-			if (pair->is_close)
+			if (pair->events[FD_CLOSE_BIT])
 			{
 				cl.Delete(pair);
 				//cout << "Client closed" << endl;

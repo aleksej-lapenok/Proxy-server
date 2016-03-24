@@ -4,3 +4,5 @@
 *.exe
 /.vs
 *.sio
+*.sdf
+*.suo

@@ -76,11 +76,10 @@
     <ClCompile Include="httpRequest.cpp" />
     <ClCompile Include="httpRequestClient.cpp" />
     <ClCompile Include="httpRequestServer.cpp" />
-    <ClCompile Include="httpSocketPair.cpp" />
+    <ClCompile Include="httpSocket.cpp" />
     <ClCompile Include="MyListenSocket.cpp" />
     <ClCompile Include="MySocket.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MySocketPair.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clients.h" />
@@ -89,10 +88,9 @@
     <ClInclude Include="httpRequest.h" />
     <ClInclude Include="httpRequestClient.h" />
     <ClInclude Include="httpRequestServer.h" />
-    <ClInclude Include="httpSocketPair.h" />
+    <ClInclude Include="httpSocket.h" />
     <ClInclude Include="MyListenSocket.h" />
     <ClInclude Include="MySocket.h" />
-    <ClInclude Include="MySocketPair.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

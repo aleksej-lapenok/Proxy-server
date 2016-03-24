@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include "httpListenSocket.h"
+#include <atomic>
 
 // Need to link with Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
@@ -12,7 +13,7 @@
 using namespace std;
 
 // TODO: use std::atomic<bool>
-bool flage = true;
+std::atomic<bool> flage = true;
 
 int server()
 {

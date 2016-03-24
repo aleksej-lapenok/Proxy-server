@@ -1,20 +1,26 @@
 #pragma once
-#include "MySocketPair.h"
+#include "MySocket.h"
+#include <memory>
 #include <vector>
 
 struct Clients
 {
 private:
-	std::vector<MySocketPair*> clients;
+	std::vector<std::unique_ptr<MySocket>> clients;
 	//std::vector<MySocket> servers;
+	const int TIMEOUT = 17 * 1000;
 	std::vector<WSAEVENT> events;
-	void pushback(MySocketPair*);
-	int cout_clients = 0;
+	size_t cout_clients = 0;
+
+
+	void pushback(MySocket*);
+	void Add(std::unique_ptr<MySocket>);
+	void DeleteGlobal();
 public:
 	Clients();
-	Clients(MySocketPair*);
-	void Add(MySocketPair*);
-	void Delete(MySocketPair*);
-	std::pair<bool, MySocketPair*> WaitMultyEvent();
+	Clients(MySocket*);
+	void Add(MySocket*);
+	void Delete(MySocket*);
+	std::pair<bool, MySocket*> WaitMultyEvent();
 	~Clients();
 };

@@ -3,11 +3,10 @@
 
 struct MyListenSocket
 {
-private:
-	Clients cl;
 protected:
-	virtual MySocketPair* onAccept(MySocket*);
+	virtual void onAccept(MySocket*);
 	int timeout;
+	Clients cl;
 public:
 	MyListenSocket(int);
 	MyListenSocket(int,int port);

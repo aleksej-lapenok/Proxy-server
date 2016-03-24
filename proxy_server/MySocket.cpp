@@ -1,4 +1,6 @@
 #include "MySocket.h"
+#include <iostream>
+#include <assert.h>
 
 using namespace std;
 
@@ -10,6 +12,7 @@ MySocket::MySocket()
 	{
 		events[i] = false;
 	}
+	other = 0;
 }
 
 MySocket::MySocket(SOCKET sock)
@@ -19,6 +22,7 @@ MySocket::MySocket(SOCKET sock)
 	{
 		events[i] = false;
 	}
+	other = 0;
 }
 
 MySocket::MySocket(SOCKET sock, long events)
@@ -30,6 +34,7 @@ MySocket::MySocket(SOCKET sock, long events)
 	{
 		this->events[i] = false;
 	}
+	other = 0;
 }
 
 MySocket::MySocket(SOCKET sock, WSAEVENT even)
@@ -40,6 +45,7 @@ MySocket::MySocket(SOCKET sock, WSAEVENT even)
 	{
 		events[i] = false;
 	}
+	other = 0;
 }
 
 MySocket::MySocket(MySocket const& )
@@ -49,12 +55,8 @@ MySocket::MySocket(MySocket const& )
 	{
 		events[i] = false;
 	}
+	other = 0;
 }
-
-/*MySocket MySocket::operator=(MySocket const& other)
-{
-	return MySocket(other);
-}*/
 
 void MySocket::Destroy()
 {
@@ -97,6 +99,77 @@ bool MySocket::checkEvent()
 		flage = true;
 	}
 	return flage;
+}
+
+void MySocket::ReadAndWrite()
+{
+	if (Socket == INVALID_SOCKET || other->Socket == INVALID_SOCKET)
+		return;
+	//if (server->checkEvent() || client->checkEvent())
+	{
+		if (other->other != this)
+		{
+			events[FD_CLOSE_BIT] = true;
+			return;
+		}
+		bool flage = true;
+
+		if (other->events[FD_CONNECT_BIT])
+		{
+			onConnected();
+			flage = false;
+		}
+
+		if (events[FD_CONNECT_BIT])
+		{
+			onConnected();
+			flage = false;
+		}
+
+		if ((other->events[FD_READ_BIT] || other->len_buffer > 0) && /*canBeRead &&*/ events[FD_WRITE_BIT])
+		{
+			other->onRead();
+			flage = false;
+		}
+		if (events[FD_CLOSE_BIT])//close=5;
+			return;
+		if ((events[FD_READ_BIT] || len_buffer > 0) && /*canBeRead &&*/ other->events[FD_WRITE_BIT])
+		{
+			onRead();
+			flage = false;
+		}
+		if (flage && (other->events[FD_CLOSE_BIT] || events[FD_CLOSE_BIT]))
+		{
+			events[FD_CLOSE_BIT] = true;
+			other->events[FD_CLOSE_BIT] = true;
+		}
+	}
+}
+
+void MySocket::onConnected()
+{
+	std::cout << "client connected" << std::endl;
+	events[FD_CONNECT_BIT] = false;
+}
+
+void MySocket::onRead()//client = this; server=other
+{
+	if (len_buffer == 0)
+	{
+		len_buffer = recv(Socket, buffer, LEN, 0);
+	}
+	int lenSend = send(other->Socket, buffer, len_buffer, 0);
+	std::cout << "client to server: " << std::endl/* << std::string(server->buffer + 0, server->buffer + server->len_buffer) << std::endl << std::endl*/;
+	events[FD_READ_BIT] = false;
+	if (WSAGetLastError() == 10035 || lenSend == -1)
+	{
+		other->events[FD_WRITE_BIT] = false;
+	}
+	else
+	{
+		assert(len_buffer == lenSend);
+		other->len_buffer = 0;
+	}
 }
 
 MySocket::~MySocket()
