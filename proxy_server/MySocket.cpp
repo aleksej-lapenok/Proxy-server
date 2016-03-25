@@ -5,8 +5,9 @@
 using namespace std;
 
 
-MySocket::MySocket()
+MySocket::MySocket(int timeout):maxTimeout(timeout)
 {
+	this->timeout = maxTimeout;
 	Socket = INVALID_SOCKET;
 	for (int i = 0; i < 9; i++)
 	{
@@ -15,37 +16,20 @@ MySocket::MySocket()
 	other = 0;
 }
 
-MySocket::MySocket(SOCKET sock)
+MySocket::MySocket(SOCKET sock,int timeout):MySocket(timeout)
 {
 	Socket = sock;
-	for (int i = 0; i < 9; i++)
-	{
-		events[i] = false;
-	}
-	other = 0;
 }
 
-MySocket::MySocket(SOCKET sock, long events)
+MySocket::MySocket(SOCKET sock, long events,int timeout):MySocket(sock,timeout)
 {
-	Socket = sock;
 	WSAEvent = WSACreateEvent();
 	WSAEventSelect(Socket, WSAEvent, events | FD_CLOSE);
-	for (int i = 0; i < 9; i++)
-	{
-		this->events[i] = false;
-	}
-	other = 0;
 }
 
-MySocket::MySocket(SOCKET sock, WSAEVENT even)
+MySocket::MySocket(SOCKET sock, WSAEVENT even,int timeout):MySocket(sock,timeout)
 {
-	Socket = sock;
 	WSAEvent = even;
-	for (int i = 0; i < 9; i++)
-	{
-		events[i] = false;
-	}
-	other = 0;
 }
 
 MySocket::MySocket(MySocket const& )
@@ -169,6 +153,15 @@ void MySocket::onRead()//client = this; server=other
 	{
 		assert(len_buffer == lenSend);
 		other->len_buffer = 0;
+	}
+}
+
+void MySocket::updateTimer()
+{
+	timeout = maxTimeout;
+	if (other)
+	{
+		other->timeout = other->maxTimeout;
 	}
 }
 

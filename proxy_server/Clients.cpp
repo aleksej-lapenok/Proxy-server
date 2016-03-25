@@ -46,13 +46,15 @@ void Clients::Delete(MySocket* forDel)
 	}
 	std::vector<std::unique_ptr<MySocket>>::iterator first = find(clients.begin(), clients.end(), forDel);
 	MySocket* other = forDel->other;
+	if (!other)
+		std::cout << "error" << std::endl;
 	if (first != clients.end())
 	{
 		std::vector<WSAEVENT>::iterator firstEvent = find(events.begin(), events.end(), forDel->WSAEvent);
 		clients.erase(first);
 		events.erase(firstEvent);
 	}
-	std::vector<std::unique_ptr<MySocket>>::iterator second = find(clients.begin(), clients.end(), forDel->other);
+	std::vector<std::unique_ptr<MySocket>>::iterator second = find(clients.begin(), clients.end(), other);
 	if (second != clients.end())
 	{
 		std::vector<WSAEVENT>::iterator secondEvent = find(events.begin(), events.end(), (*second)->WSAEvent);
@@ -70,20 +72,20 @@ std::pair<bool, MySocket*> Clients::WaitMultyEvent()
 		cout_clients = clients.size() - 1;
 	}
 	clock_t start = clock();
-	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS-1), array_event, false, TIMEOUT, false);
+	int index = WSAWaitForMultipleEvents(min(events.size(),WSA_MAXIMUM_WAIT_EVENTS-1), array_event, false, clients[0]->timeout, false);
 	if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT)
 	{
 		index -= WSA_WAIT_EVENT_0;
 		MySocket* pair = clients[index].get();
-		/*if (index != 0 && pair->client != pair->server)
+		if (index != 0 && pair != pair->other)
 		{
 			clients[0]->timeout -= (clock() - start);
 			if (clients[0].get() != pair && clients[0]->timeout < 0)
 			{
 				Delete(clients[0].get());
 			}
-		}*/
-		//pair->updateTimer();
+		}
+		pair->updateTimer();
 		bool flage = false;
 		flage = pair->checkEvent();
 		pushback(pair);
@@ -91,7 +93,7 @@ std::pair<bool, MySocket*> Clients::WaitMultyEvent()
 	}
 	if (index == WSA_WAIT_TIMEOUT)
 	{
-		DeleteGlobal();//TODO: write to delete first WSA_MAXIMUM_WAIT_EVENTS
+		Delete(clients[0].get());
 		return std::pair<bool, MySocket*>(false, clients[0].get());
 	}
 	std::cout << WSAGetLastError()<<std::endl;
@@ -111,37 +113,6 @@ void Clients::pushback(MySocket* forDel)
 	this->Add(std::move(forDel_ptr));
 }
 
-void Clients::DeleteGlobal()
-{
-	int i = 0;
-	for (std::vector<std::unique_ptr<MySocket>>::iterator j = clients.begin(); j != clients.end() && i < WSA_MAXIMUM_WAIT_EVENTS; i++)
-	{
-		MySocket* forDel = j->get();
-		if (forDel == forDel->other || !forDel->other)
-		{
-			j++;
-			continue;
-		}
-		MySocket* other = forDel->other;
-		if (j != clients.end())
-		{
-			std::vector<WSAEVENT>::iterator firstEvent = find(events.begin(), events.end(), forDel->WSAEvent);
-			j=clients.erase(j);
-			events.erase(firstEvent);
-		}
-		std::vector<std::unique_ptr<MySocket>>::iterator second = find(clients.begin(), clients.end(), forDel->other);
-		if (j == second)
-			j++;
-		if (second != clients.end())
-		{
-			std::vector<WSAEVENT>::iterator secondEvent = find(events.begin(), events.end(), (*second)->WSAEvent);
-			clients.erase(second);
-			events.erase(secondEvent);
-		}
-	}
-}
-
 Clients::~Clients()
 {
-	clients.clear();
 }

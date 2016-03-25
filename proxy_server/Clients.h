@@ -15,7 +15,6 @@ private:
 
 	void pushback(MySocket*);
 	void Add(std::unique_ptr<MySocket>);
-	void DeleteGlobal();
 public:
 	Clients();
 	Clients(MySocket*);

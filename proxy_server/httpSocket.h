@@ -9,7 +9,7 @@
 template<bool flage>
 struct httpSocket :MySocket
 {
-	httpSocket(SOCKET client, int WSAevent);
+	httpSocket(SOCKET client, int WSAevent,int timeout);
 
 	httpRequest* request;
 

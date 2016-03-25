@@ -11,7 +11,7 @@ using namespace std;
 MyListenSocket::MyListenSocket(int t,int port)
 {
 	timeout = t;
-	MySocket* mySocket=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
+	MySocket* mySocket=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),timeout);
 	sockaddr_in inetAddr;
 	inetAddr.sin_family = AF_INET;
 	inetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -31,16 +31,18 @@ MyListenSocket::MyListenSocket(int t)
 	MyListenSocket(t,7777);
 }
 
-void MyListenSocket::onAccept(MySocket* client1)
+void MyListenSocket::onAccept(MySocket* listenSocket)
 {
 	SOCKADDR_IN inetAddr;
 	inetAddr.sin_family = AF_INET;
 	inetAddr.sin_addr.s_addr = inet_addr("188.165.141.151");
 	inetAddr.sin_port = htons(80);
-	MySocket* client2=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT);
+	MySocket* client1 = new MySocket(accept(listenSocket->Socket, NULL, NULL),FD_READ|FD_WRITE, timeout);
+	MySocket* client2=new MySocket(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP),FD_READ|FD_WRITE|FD_CONNECT,timeout);
 	connect(client2->Socket, (struct sockaddr*)&inetAddr, sizeof(inetAddr));
 	client1->other = client2;
 	client2->other = client1;
+	cl.Add(client1);
 	cl.Add(client2);
 }
 void MyListenSocket::myAccept()

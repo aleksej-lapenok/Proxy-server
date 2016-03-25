@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-httpSocket<true>::httpSocket(SOCKET client, int WSAevent) : MySocket(client, WSAevent)
+httpSocket<true>::httpSocket(SOCKET client, int WSAevent,int timeout) : MySocket(client, WSAevent,timeout)
 {
 	request = new httpRequestClient();
 }
 
-httpSocket<false>::httpSocket(SOCKET client, int WSAevent) : MySocket(client, WSAevent)
+httpSocket<false>::httpSocket(SOCKET client, int WSAevent,int timeout) : MySocket(client, WSAevent,timeout)
 {
 	events[FD_WRITE_BIT] = true;
 	request = new httpRequestServer();
@@ -57,7 +57,10 @@ void httpSocket<true>::onRead()
 			return;*/
 			try
 			{
-				inetAddr.sin_addr.s_addr = *((unsigned long*)gethostbyname(request->getUrl().c_str())->h_addr);
+				struct hostent* res = gethostbyname(request->getUrl().c_str());
+				if (!res)
+					throw std::exception("Can't find this host");
+				inetAddr.sin_addr.s_addr = *((unsigned long*)res->h_addr);
 			}
 			catch (...)
 			{
