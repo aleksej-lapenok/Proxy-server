@@ -83,8 +83,8 @@ void httpSocket<true>::onRead()
 				}
 				for (int i = len_buffer - 4; i < len_buffer; i += 2)
 				{
-					buffer[i] = "\r"[0];
-					buffer[i + 1] = "\n"[0];
+					buffer[i] = '\r';
+					buffer[i + 1] = '\n';
 				}
 				other->events[FD_WRITE_BIT] = false;
 				events[FD_READ_BIT] = true;
