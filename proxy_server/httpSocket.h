@@ -1,6 +1,5 @@
 #pragma once
 
-#include "MySocketPair.h"
 #include "httpRequestClient.h"
 #include "httpRequestServer.h"
 #include <string>
