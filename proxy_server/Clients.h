@@ -12,7 +12,7 @@ private:
 	std::vector<WSAEVENT> events;
 	size_t cout_clients = 0;
 
-
+	void CheckAndDelete(MySocket*);
 	void pushback(MySocket*);
 	void Add(std::unique_ptr<MySocket>);
 public:
